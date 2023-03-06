@@ -1,0 +1,45 @@
+Semaphore *mutex = new Semaphore(1);
+Semaphore *readwrite_mutex = new Semaphore(1);
+Semaphore *writer = new Semaphore(1);
+
+int read_count = 0;
+
+void Reader()
+{
+	while(true)
+	{
+		down(writer);
+		down(mutex);
+		read_count++;
+		if(read_count==1)	
+		{
+			down(readwrite_mutex);
+		}
+		up(mutex);
+		up(writer);
+		
+		/CRITICAL SECTION/
+
+		down(mutex);
+		read_count--;
+		if(read_count==0)
+		{
+			up(readwrite_mutex);
+		}	
+		up(mutex);
+	}
+}
+
+void Writer()
+{
+	while(true)
+	{
+		down(writer);
+		down(readwrite_mutex);
+
+		/CRITICAL SECTION/
+
+		up(readwrite_mutex);
+		up(writer);
+	}
+}
